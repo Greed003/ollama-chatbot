@@ -27,7 +27,7 @@ A simple chatbot interface using the LLaMA 2-7B model through Replicate's API, w
 ### Installation
 
 1. Clone the repository: 
-
+    git clone https://github.com/Greed003/ollama-chatbot.git
 2. Install required Python packages: 
     pip install fastapi uvicorn replicate python-dotenv
 
