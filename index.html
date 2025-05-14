@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llama Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #343541;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            background: #40414f;
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background: #0a84ff;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: #565869;
+            align-self: flex-start;
+        }
+
+        .chat-input {
+            display: flex;
+            width: 90%;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            border: none;
+            background: #0a84ff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <h2>Ollama Chatbot</h2>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="message bot-message">👋 Hello! Ask me anything.</div>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput");
+            const chatContainer = document.getElementById("chatContainer");
+
+            const messageText = userInput.value.trim();
+            if (!messageText) return;
+
+            // Display user message
+            const userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user-message");
+            userMessage.innerText = messageText;
+            chatContainer.appendChild(userMessage);
+
+            // Clear input field
+            userInput.value = "";
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Display thinking message
+            const botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot-message");
+            botMessage.innerText = "Llama is thinking...";
+            chatContainer.appendChild(botMessage);
+
+            // Fetch response from API
+            try {
+                const response = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+
+                // Update bot message with response
+                botMessage.innerText = data.response || "❌ Error: No response received.";
+
+            } catch (error) {
+                botMessage.innerText = "❌ Error: Unable to reach chatbot.";
+                console.error(error);
+            }
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Enter key sends message
+        document.getElementById("userInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
